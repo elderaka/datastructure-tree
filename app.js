@@ -470,8 +470,22 @@ const confirmNo = document.getElementById('confirmNo');
 let confirmCallback = null;
 
 // Confirm Modal functions
-function showConfirmModal(message, onConfirm) {
-    confirmMessage.textContent = message;
+function showConfirmModal(message, onConfirm, context = '', algorithmCode = '') {
+    const confirmAlgorithmSection = document.getElementById('confirmAlgorithmSection');
+    const confirmAlgorithmCodeEl = document.getElementById('confirmAlgorithmCode');
+    
+    if (algorithmCode) {
+        confirmAlgorithmCodeEl.innerHTML = algorithmCode;
+        confirmAlgorithmSection.style.display = 'block';
+    } else {
+        confirmAlgorithmSection.style.display = 'none';
+    }
+    
+    if (context) {
+        confirmMessage.innerHTML = `<div style="font-weight: bold; margin-bottom: 10px; color: #667eea;">${context}</div>${message}`;
+    } else {
+        confirmMessage.textContent = message;
+    }
     confirmCallback = onConfirm;
     confirmModal.classList.add('active');
 }
@@ -526,6 +540,111 @@ alertOk.addEventListener('click', () => {
 alertModal.addEventListener('click', (e) => {
     if (e.target === alertModal) {
         hideAlertModal();
+    }
+});
+
+// Algorithm Modal elements
+const algorithmModal = document.getElementById('algorithmModal');
+const algorithmModalCode = document.getElementById('algorithmModalCode');
+const algorithmModalTitle = document.getElementById('algorithmModalTitle');
+const algorithmOperationTitle = document.getElementById('algorithmOperationTitle');
+const algorithmModalClose = document.getElementById('algorithmModalClose');
+
+// Algorithm Modal functions
+function showAlgorithmModal(operation, details = {}) {
+    const algorithms = {
+        insert: {
+            title: details.value ? `Insert Node '${details.value}' (${details.side} child of '${details.parent}')` : 'Insert Node',
+            code: `<span class="keyword">void</span> <span class="function">insertNode</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> parent, <span class="keyword">char</span> value, <span class="keyword">bool</span> isLeft) {
+    <span class="keyword">if</span> (root == <span class="keyword">NULL</span>) {
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="keyword">if</span> (root->info == parent) {
+        <span class="type">address</span> newNode = <span class="keyword">new</span> <span class="type">Node</span>;
+        newNode->info = value;
+        newNode->left = <span class="keyword">NULL</span>;
+        newNode->right = <span class="keyword">NULL</span>;
+        
+        <span class="keyword">if</span> (isLeft) {
+            root->left = newNode;
+        } <span class="keyword">else</span> {
+            root->right = newNode;
+        }
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="function">insertNode</span>(root->left, parent, value, isLeft);
+    <span class="function">insertNode</span>(root->right, parent, value, isLeft);
+}`
+        },
+        delete: {
+            title: details.value ? `Delete Node '${details.value}' and its subtree` : 'Delete Node',
+            code: `<span class="keyword">void</span> <span class="function">deleteNode</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> value) {
+    <span class="keyword">if</span> (root == <span class="keyword">NULL</span>) {
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Jika node yang dihapus adalah root</span>
+    <span class="keyword">if</span> (root->info == value) {
+        <span class="keyword">delete</span> root;
+        root = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Cek child kiri</span>
+    <span class="keyword">if</span> (root->left != <span class="keyword">NULL</span> && root->left->info == value) {
+        <span class="function">deleteSubtree</span>(root->left);
+        root->left = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Cek child kanan</span>
+    <span class="keyword">if</span> (root->right != <span class="keyword">NULL</span> && root->right->info == value) {
+        <span class="function">deleteSubtree</span>(root->right);
+        root->right = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="function">deleteNode</span>(root->left, value);
+    <span class="function">deleteNode</span>(root->right, value);
+}
+
+<span class="keyword">void</span> <span class="function">deleteSubtree</span>(<span class="type">BinTree</span> root) {
+    <span class="keyword">if</span> (root != <span class="keyword">NULL</span>) {
+        <span class="function">deleteSubtree</span>(root->left);
+        <span class="function">deleteSubtree</span>(root->right);
+        <span class="keyword">delete</span> root;
+    }
+}`
+        },
+        createRoot: {
+            title: details.value ? `Create Root Node '${details.value}'` : 'Create Root',
+            code: `<span class="keyword">void</span> <span class="function">createRoot</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> value) {
+    root = <span class="keyword">new</span> <span class="type">Node</span>;
+    root->info = value;
+    root->left = <span class="keyword">NULL</span>;
+    root->right = <span class="keyword">NULL</span>;
+}`
+        }
+    };
+    
+    const algo = algorithms[operation];
+    algorithmModalTitle.textContent = algo.title;
+    algorithmOperationTitle.textContent = algo.operation + ' Algorithm';
+    algorithmModalCode.innerHTML = algo.code;
+    algorithmModal.classList.add('active');
+}
+
+function hideAlgorithmModal() {
+    algorithmModal.classList.remove('active');
+}
+
+algorithmModalClose.addEventListener('click', hideAlgorithmModal);
+
+algorithmModal.addEventListener('click', (e) => {
+    if (e.target === algorithmModal) {
+        hideAlgorithmModal();
     }
 });
 
@@ -782,6 +901,33 @@ function showAddNodeModal(parentNode, side) {
     nodeValueInput.placeholder = 'Masukkan nilai node...';
     nodeValueInput.value = '';
     
+    // Show insert algorithm
+    const modalAlgorithmSection = document.getElementById('modalAlgorithmSection');
+    const modalAlgorithmCode = document.getElementById('modalAlgorithmCode');
+    modalAlgorithmCode.innerHTML = `<span class="keyword">void</span> <span class="function">insertNode</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> parent, <span class="keyword">char</span> value, <span class="keyword">bool</span> isLeft) {
+    <span class="keyword">if</span> (root == <span class="keyword">NULL</span>) {
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="keyword">if</span> (root->info == parent) {
+        <span class="type">address</span> newNode = <span class="keyword">new</span> <span class="type">Node</span>;
+        newNode->info = value;
+        newNode->left = <span class="keyword">NULL</span>;
+        newNode->right = <span class="keyword">NULL</span>;
+        
+        <span class="keyword">if</span> (isLeft) {
+            root->left = newNode;
+        } <span class="keyword">else</span> {
+            root->right = newNode;
+        }
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="function">insertNode</span>(root->left, parent, value, isLeft);
+    <span class="function">insertNode</span>(root->right, parent, value, isLeft);
+}`;
+    modalAlgorithmSection.style.display = 'block';
+    
     showModal();
 }
 
@@ -792,6 +938,9 @@ function showRenameModal(node) {
     modalTitle.textContent = 'Rename Node';
     nodeValueInput.placeholder = 'Masukkan nilai baru...';
     nodeValueInput.value = node.value;
+    
+    // Hide algorithm for rename
+    document.getElementById('modalAlgorithmSection').style.display = 'none';
     
     showModal();
 }
@@ -815,6 +964,7 @@ modalConfirm.addEventListener('click', () => {
         buatTreeState.tree.calculatePositions();
         visualizer.setTree(buatTreeState.tree);
         visualizer.draw();
+        showAlgorithmModal('createRoot', { value: value });
     } else if (buatTreeState.modalAction === 'add') {
         const newNode = new TreeNode(value);
         
@@ -827,6 +977,11 @@ modalConfirm.addEventListener('click', () => {
         buatTreeState.tree.calculatePositions();
         visualizer.setTree(buatTreeState.tree);
         visualizer.draw();
+        showAlgorithmModal('insert', { 
+            value: value, 
+            parent: buatTreeState.selectedNode.value, 
+            side: buatTreeState.selectedSide 
+        });
     } else if (buatTreeState.modalAction === 'rename') {
         buatTreeState.selectedNode.value = value;
         visualizer.draw();
@@ -852,27 +1007,74 @@ nodeValueInput.addEventListener('keypress', (e) => {
 });
 
 function deleteNodeInteractive(node) {
+    const nodeValue = node.value;
+    const deleteAlgorithm = `<span class="keyword">void</span> <span class="function">deleteNode</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> value) {
+    <span class="keyword">if</span> (root == <span class="keyword">NULL</span>) {
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Jika node yang dihapus adalah root</span>
+    <span class="keyword">if</span> (root->info == value) {
+        <span class="keyword">delete</span> root;
+        root = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Cek child kiri</span>
+    <span class="keyword">if</span> (root->left != <span class="keyword">NULL</span> && root->left->info == value) {
+        <span class="function">deleteSubtree</span>(root->left);
+        root->left = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="comment">// Cek child kanan</span>
+    <span class="keyword">if</span> (root->right != <span class="keyword">NULL</span> && root->right->info == value) {
+        <span class="function">deleteSubtree</span>(root->right);
+        root->right = <span class="keyword">NULL</span>;
+        <span class="keyword">return</span>;
+    }
+    
+    <span class="function">deleteNode</span>(root->left, value);
+    <span class="function">deleteNode</span>(root->right, value);
+}
+
+<span class="keyword">void</span> <span class="function">deleteSubtree</span>(<span class="type">BinTree</span> root) {
+    <span class="keyword">if</span> (root != <span class="keyword">NULL</span>) {
+        <span class="function">deleteSubtree</span>(root->left);
+        <span class="function">deleteSubtree</span>(root->right);
+        <span class="keyword">delete</span> root;
+    }
+}`;
+    
     if (node === buatTreeState.tree.root && !node.left && !node.right) {
-        showConfirmModal('Hapus root node?', (confirmed) => {
-            if (confirmed) {
-                buatTreeState.tree.root = null;
-                visualizer.setTree(null);
-                visualizer.draw();
-                saveTreeToSession();
-            }
-        });
+        showConfirmModal(
+            `Hapus root node '${nodeValue}'?`, 
+            (confirmed) => {
+                if (confirmed) {
+                    buatTreeState.tree.root = null;
+                    visualizer.setTree(null);
+                    visualizer.draw();
+                    saveTreeToSession();
+                }
+            },
+            deleteAlgorithm
+        );
         return;
     }
     
-    showConfirmModal(`Hapus node ${node.value}? Node ini dan semua child-nya akan dihapus.`, (confirmed) => {
-        if (!confirmed) return;
-        
-        removeNodeFromTree(buatTreeState.tree.root, node, null, null);
-        buatTreeState.tree.calculatePositions();
-        visualizer.setTree(buatTreeState.tree);
-        visualizer.draw();
-        saveTreeToSession();
-    });
+    showConfirmModal(
+        `Hapus node '${nodeValue}'? Node ini dan semua child-nya akan dihapus.`, 
+        (confirmed) => {
+            if (!confirmed) return;
+            
+            removeNodeFromTree(buatTreeState.tree.root, node, null, null);
+            buatTreeState.tree.calculatePositions();
+            visualizer.setTree(buatTreeState.tree);
+            visualizer.draw();
+            saveTreeToSession();
+        },
+        deleteAlgorithm
+    );
 }
 
 function removeNodeFromTree(current, targetNode, parent, isLeft) {
@@ -908,6 +1110,17 @@ document.getElementById('createRoot').addEventListener('click', () => {
     nodeValueInput.placeholder = 'Masukkan nilai root...';
     nodeValueInput.value = '';
     
+    // Show createRoot algorithm
+    const modalAlgorithmSection = document.getElementById('modalAlgorithmSection');
+    const modalAlgorithmCode = document.getElementById('modalAlgorithmCode');
+    modalAlgorithmCode.innerHTML = `<span class="keyword">void</span> <span class="function">createRoot</span>(<span class="type">BinTree</span>& root, <span class="keyword">char</span> value) {
+    root = <span class="keyword">new</span> <span class="type">Node</span>;
+    root->info = value;
+    root->left = <span class="keyword">NULL</span>;
+    root->right = <span class="keyword">NULL</span>;
+}`;
+    modalAlgorithmSection.style.display = 'block';
+    
     showModal();
 });
 
@@ -917,14 +1130,28 @@ document.getElementById('clearTree').addEventListener('click', () => {
         return;
     }
     
-    showConfirmModal('Hapus seluruh tree?', (confirmed) => {
-        if (confirmed) {
-            buatTreeState.tree = new BinaryTree();
-            visualizer.setTree(null);
-            visualizer.draw();
-            saveTreeToSession();
-        }
-    });
+    const clearAlgorithm = `<span class="keyword">void</span> <span class="function">clearTree</span>(<span class="type">BinTree</span>& root) {
+    <span class="keyword">if</span> (root != <span class="keyword">NULL</span>) {
+        <span class="function">clearTree</span>(root->left);
+        <span class="function">clearTree</span>(root->right);
+        <span class="keyword">delete</span> root;
+        root = <span class="keyword">NULL</span>;
+    }
+}`;
+    
+    showConfirmModal(
+        'Hapus seluruh tree?', 
+        (confirmed) => {
+            if (confirmed) {
+                buatTreeState.tree = new BinaryTree();
+                visualizer.setTree(null);
+                visualizer.draw();
+                saveTreeToSession();
+            }
+        },
+        '',
+        clearAlgorithm
+    );
 });
 
 document.getElementById('showPlaceholdersCheckbox').addEventListener('change', (e) => {
