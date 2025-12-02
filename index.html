@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Visualizer</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <a href="https://github.com/elderaka/datastructure-tree" target="_blank" class="github-link" title="View on GitHub">
+            <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+        </a>
+        <div class="trademark">Vibe coded with love<br>- LDR</div>
+        
+        <!-- Mode Selection -->
+        <div class="mode-selector">
+            <button id="modeTraversal" class="mode-btn active">Traversal Simulator</button>
+            <button id="modeBST" class="mode-btn">BST Simulator</button>
+            <button id="modeTebak" class="mode-btn">Tebak Tree</button>
+            <button id="modeBuatTree" class="mode-btn">Buat Tree</button>
+        </div>
+
+        <!-- Traversal Simulator Mode -->
+        <div id="traversalMode" class="mode-content">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="depth2">Depth:</label>
+                    <input type="number" id="depth2" min="1" max="6" value="3">
+                    <span class="hint" id="depthHint2">Max nodes: 7</span>
+                </div>
+                <div class="control-group">
+                    <label for="nodeCount2">Number of Nodes:</label>
+                    <input type="number" id="nodeCount2" min="1" max="7" value="7">
+                </div>
+                <button id="generateTree2" class="btn-primary">Generate Tree</button>
+                <button id="importJSON" class="btn-secondary">Import JSON</button>
+                <button id="loadFromBuatTree" class="btn-secondary">Load dari Buat Tree</button>
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+                
+                <div class="traversal-controls" id="traversalControls" style="display: none;">
+                    <label for="traversalType">Traversal Type:</label>
+                    <select id="traversalType">
+                        <option value="preorder">Preorder</option>
+                        <option value="inorder">Inorder</option>
+                        <option value="postorder">Postorder</option>
+                        <option value="levelorder">Level Order (BFS)</option>
+                    </select>
+                    <button id="startTraversal" class="btn-primary">Start Traversal</button>
+                    <button id="nextStep" class="btn-secondary" disabled>Next Step</button>
+                    <button id="resetTraversal" class="btn-secondary">Reset</button>
+                </div>
+            </div>
+            <div class="output-container">
+                <div class="output-label">Output:</div>
+                <div id="traversalOutput" class="output-text"></div>
+            </div>
+            
+            <div class="code-visualization">
+                <div class="struct-container">
+                    <h3>Data Structure</h3>
+                    <pre class="code-block"><span class="keyword">typedef struct</span> <span class="type">Node</span> *<span class="type">address</span>;
+
+                    <span class="keyword">struct</span> <span class="type">Node</span> {
+                        <span class="keyword">char</span> info;
+                        <span class="type">address</span> left;
+                        <span class="type">address</span> right;
+                    };
+
+                    <span class="keyword">typedef</span> <span class="type">address BinTree</span>;</pre>
+                </div>
+                
+                <div class="algorithm-container">
+                    <h3>Algorithm</h3>
+                    <pre id="algorithmCode" class="code-block"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- BST Simulator Mode -->
+        <div id="bstMode" class="mode-content">
+            <div class="controls">
+                <div class="bst-options">
+                    <h3>Buat BST</h3>
+                    <div class="control-group">
+                        <button id="randomizeBST" class="btn-primary">Acak BST</button>
+                        <span class="hint">Menghasilkan 8-12 angka acak</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="customNumbers">Atau Masukkan Angka (pisahkan dengan spasi):</label>
+                        <input type="text" id="customNumbers" placeholder="contoh: 50 30 70 20 40 60 80">
+                        <button id="createCustomBST" class="btn-primary">Buat BST</button>
+                    </div>
+                </div>
+                
+                <div class="bst-operations" id="bstOperations" style="display: none;">
+                    <h3>Operasi BST</h3>
+                    <div class="control-group">
+                        <label for="newNumber">Tambah Angka:</label>
+                        <input type="number" id="newNumber" placeholder="Masukkan angka">
+                        <button id="addNumber" class="btn-secondary">Tambah ke BST</button>
+                    </div>
+                    <div class="control-group">
+                        <label for="deleteNumberInput">Hapus Angka:</label>
+                        <input type="number" id="deleteNumberInput" placeholder="Masukkan angka">
+                        <button id="deleteNumberBtn" class="btn-secondary">Hapus dari BST</button>
+                    </div>
+                    <div class="bst-info" id="bstInfo"></div>
+                </div>
+                
+                <div class="code-visualization" id="bstCodeViz" style="display: none;">
+                    <div class="struct-container">
+                        <h3>Struktur Data</h3>
+                        <pre class="code-block"><span class="keyword">typedef struct</span> <span class="type">Node</span> *<span class="type">address</span>;
+
+                        <span class="keyword">struct</span> <span class="type">Node</span> {
+                            <span class="keyword">int</span> info;
+                            <span class="type">address</span> left;
+                            <span class="type">address</span> right;
+                        };
+
+                        <span class="keyword">typedef</span> <span class="type">address BinTree</span>;</pre>
+                    </div>
+                    
+                    <div class="algorithm-container">
+                        <h3>Algoritma</h3>
+                        <div class="algorithm-tabs">
+                            <button class="tab-btn active" data-algo="insert">Insert</button>
+                            <button class="tab-btn" data-algo="delete">Delete</button>
+                        </div>
+                        <pre id="bstAlgorithmCode" class="code-block"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tebak Tree Mode -->
+        <div id="tebakMode" class="mode-content">
+            <div class="controls">
+                <button id="generateTebak" class="btn-primary">Generate Tebak Tree</button>
+                <div id="tebakOutputs" class="tebak-outputs"></div>
+                <div id="tebakReveal" style="display: none; margin-top: 20px;">
+                    <div class="question">Munculkan Tree?</div>
+                    <button id="revealTree" class="btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Tree Mode -->
+        <div id="buatTreeMode" class="mode-content">
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Buat Tree</h3>
+                </div>
+                
+                <div class="control-group">
+                    <button id="createRoot" class="btn-primary">Buat Root</button>
+                    <button id="clearTree" class="btn-danger">Clear Tree</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="showPlaceholdersCheckbox" checked>
+                        Tampilkan Tombol
+                    </label>
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="simplifyOnlyChildCheckbox" checked>
+                        Sederhanakan Only Child
+                    </label>
+                </div>
+                
+                <div class="control-group">
+                    <label for="nodeFillColor">Warna Node:</label>
+                    <input type="color" id="nodeFillColor" value="#2196F3">
+                    <label for="nodeStrokeColor" style="margin-left: 15px;">Warna Border:</label>
+                    <input type="color" id="nodeStrokeColor" value="#1976D2">
+                    <label for="nodeTextColor" style="margin-left: 15px;">Warna Font:</label>
+                    <input type="color" id="nodeTextColor" value="#ffffff">
+                </div>
+                
+                <div class="control-group">
+                    <button id="exportJSON" class="btn-secondary">Export JSON</button>
+                    <button id="importJSONBuilder" class="btn-secondary">Import JSON</button>
+                    <input type="file" id="jsonFileInputBuilder" accept=".json" style="display: none;">
+                    <button id="downloadImage" class="btn-secondary">Download Gambar</button>
+                </div>
+                
+            </div>
+        </div>
+        <div class="canvas-container">
+            <div class="zoom-controls">
+                <button id="zoomIn" class="zoom-btn" title="Zoom In">+</button>
+                <button id="zoomReset" class="zoom-btn" title="Reset Zoom">⟲</button>
+                <button id="zoomOut" class="zoom-btn" title="Zoom Out">−</button>
+            </div>
+            <canvas id="treeCanvas" width="1100" height="600"></canvas>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="nodeModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2 id="modalTitle">Node Operation</h2>
+            <div id="modalBody">
+                <label for="nodeValue">Nilai Node:</label>
+                <input type="text" id="nodeValue" placeholder="Masukkan nilai..." maxlength="10">
+                <small style="color: #666; font-size: 12px;">Maksimal 10 karakter</small>
+            </div>
+            <div class="modal-buttons">
+                <button id="modalConfirm" class="btn-primary">Konfirmasi</button>
+                <button id="modalCancel" class="btn-secondary">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Konfirmasi</h2>
+            <div id="confirmBody">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmYes" class="btn-danger">Ya</button>
+                <button id="confirmNo" class="btn-secondary">Tidak</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <h2 id="alertTitle">Perhatian</h2>
+            <div id="alertBody">
+                <p id="alertMessage"></p>
+            </div>
+            <div class="modal-buttons">
+                <button id="alertOk" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="tree.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
